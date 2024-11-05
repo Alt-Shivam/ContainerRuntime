@@ -104,3 +104,16 @@
 
 - debug:
     msg: "Docker Compose version: {{ compose_version.stdout }}"
+
+- name: Add user to Docker group
+  ansible.builtin.user:
+    name: "{{ ansible_user }}"
+    groups: docker
+    append: true
+  become: true
+
+- name: Restart Docker service to apply group changes
+  systemd:
+    name: docker
+    state: restarted
+  become: true

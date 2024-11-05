@@ -43,6 +43,14 @@
     state: absent
   become: true
 
+- name: Remove user from Docker group
+  ansible.builtin.user:
+    name: "{{ ansible_user }}"
+    groups: docker
+    state: absent
+    remove: true
+  become: true
+
 - name: Flush iptables rules related to Docker
   iptables:
     chain: "{{ item }}"
