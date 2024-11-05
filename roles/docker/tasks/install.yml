@@ -8,7 +8,8 @@
     value: '2097152'
     sysctl_set: true
     reload: true
-  when: inventory_hostname in groups['master_nodes', 'worker_nodes']
+  when: inventory_hostname in groups['master_nodes'] or inventory_hostname in groups['worker_nodes']
+
   become: true
 
 - name: Set fs.inotify.max_user_watches to 524288
@@ -17,7 +18,8 @@
     value: '524288'
     sysctl_set: true
     reload: true
-  when: inventory_hostname in groups['master_nodes', 'worker_nodes']
+  when: inventory_hostname in groups['master_nodes'] or inventory_hostname in groups['worker_nodes']
+
   become: true
 
 - name: Set fs.inotify.max_user_instances to 512
@@ -26,7 +28,8 @@
     value: '512'
     sysctl_set: true
     reload: true
-  when: inventory_hostname in groups['master_nodes', 'worker_nodes']
+  when: inventory_hostname in groups['master_nodes'] or inventory_hostname in groups['worker_nodes']
+
   become: true
 
 # Install Docker
