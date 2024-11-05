@@ -1,5 +1,6 @@
 docker:
-  version: "20.10.22"
+  engine:
+    version: "5:20.10.22~3-0~ubuntu-jammy"
   config:
     daemon:
       storage_driver: "overlay2"
