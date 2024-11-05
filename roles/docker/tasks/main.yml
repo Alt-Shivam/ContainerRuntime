@@ -1,0 +1,9 @@
+---
+
+- name: install cr/docker
+  import_tasks: roles/docker/tasks/install.yml
+  tags: install
+
+- name: uninstall cr/docker
+  import_tasks: roles/docker/tasks/uninstall.yml
+  tags: uninstall

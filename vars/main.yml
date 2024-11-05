@@ -1,0 +1,14 @@
+docker:
+  version: "20.10.22"
+  config:
+    daemon:
+      storage_driver: "overlay2"
+      log_driver: "json-file"
+      log_opts:
+        max_size: "100m"
+      exec_opts:
+        - "native.cgroupdriver=systemd"
+    params_file:
+      config_path: "/etc/docker/daemon.json"
+  compose:
+    version: "v2.12.2"

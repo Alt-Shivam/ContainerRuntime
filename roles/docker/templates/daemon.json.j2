@@ -1,0 +1,12 @@
+{
+  "storage-driver": "{{ docker.engine.config.storage_driver }}",
+  "log-driver": "{{ docker.engine.config.log_driver }}",
+  "log-opts": {
+    "max-size": "{{ docker.engine.config.log_opts.max_size }}"
+  },
+  "exec-opts": [
+    {% for opt in docker.engine.config.exec_opts %}
+      "{{ opt }}"{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ]
+}

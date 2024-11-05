@@ -1,0 +1,103 @@
+---
+
+# Prep Ubuntu to support Docker
+
+- name: Set fs.file-max to 2097152
+  ansible.posix.sysctl:
+    name: fs.file-max
+    value: '2097152'
+    sysctl_set: true
+    reload: true
+  when: inventory_hostname in groups['docker_hosts']
+  become: true
+
+- name: Set fs.inotify.max_user_watches to 524288
+  ansible.posix.sysctl:
+    name: fs.inotify.max_user_watches
+    value: '524288'
+    sysctl_set: true
+    reload: true
+  when: inventory_hostname in groups['docker_hosts']
+  become: true
+
+- name: Set fs.inotify.max_user_instances to 512
+  ansible.posix.sysctl:
+    name: fs.inotify.max_user_instances
+    value: '512'
+    sysctl_set: true
+    reload: true
+  when: inventory_hostname in groups['docker_hosts']
+  become: true
+
+# Install Docker
+
+- name: Update APT packages
+  apt:
+    update_cache: yes
+  become: true
+
+- name: Install required packages
+  apt:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - apt-transport-https
+    - ca-certificates
+    - curl
+    - software-properties-common
+  become: true
+
+- name: Add Docker’s official GPG key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+  become: true
+
+- name: Add Docker APT repository
+  apt_repository:
+    repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+    state: present
+  become: true
+
+- name: Install Docker Engine
+  apt:
+    name: "docker-ce={{ docker.engine.version }}"
+    state: present
+  become: true
+
+- name: Create Docker config directory
+  file:
+    path: "/etc/docker"
+    state: directory
+  become: true
+
+- name: Configure Docker daemon
+  template:
+    src: "daemon.json.j2"
+    dest: "/etc/docker/daemon.json"
+    mode: "0644"
+  become: true
+
+- name: Ensure Docker service is enabled and started
+  systemd:
+    name: docker
+    enabled: true
+    state: started
+  become: true
+
+# Install Docker Compose
+
+- name: Download Docker Compose
+  get_url:
+    url: "https://github.com/docker/compose/releases/download/{{ docker.compose.version }}/docker-compose-{{ ansible_system }}-{{ ansible_architecture }}"
+    dest: "{{ docker.params_file.compose_path }}"
+    mode: "a+x"
+  become: true
+
+- name: Verify Docker Compose installation
+  command: "{{ docker.params_file.compose_path }} --version"
+  register: compose_version
+  changed_when: false
+
+- debug:
+    msg: "Docker Compose version: {{ compose_version.stdout }}"

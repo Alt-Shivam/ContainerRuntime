@@ -1,0 +1,64 @@
+---
+
+- name: Remove Docker configuration directory
+  file:
+    path: "/etc/docker"
+    state: absent
+  become: true
+
+- name: Remove Docker binary
+  apt:
+    name: docker-ce
+    state: absent
+  become: true
+
+- name: Remove Docker Compose binary
+  file:
+    path: "{{ docker.params_file.compose_path }}"
+    state: absent
+  become: true
+
+- name: Stop and disable Docker service
+  systemd:
+    name: docker
+    state: stopped
+    enabled: false
+  become: true
+
+- name: Clean up Docker files in /var/lib/docker
+  file:
+    path: "/var/lib/docker"
+    state: absent
+  become: true
+
+- name: Clean up Docker network configurations in /etc/docker
+  file:
+    path: "/etc/docker"
+    state: absent
+  become: true
+
+- name: Clean up any Docker remnants in /run/docker
+  file:
+    path: "/run/docker"
+    state: absent
+  become: true
+
+- name: Flush iptables rules related to Docker
+  iptables:
+    chain: "{{ item }}"
+    flush: yes
+  with_items: ['INPUT', 'FORWARD', 'OUTPUT']
+  become: true
+
+- name: Flush iptables NAT rules related to Docker
+  iptables:
+    table: nat
+    chain: "{{ item }}"
+    flush: yes
+  with_items: ['PREROUTING', 'INPUT', 'OUTPUT', 'POSTROUTING']
+  become: true
+
+- name: Force systemd to reload configs
+  systemd:
+    daemon_reload: true
+  become: true
