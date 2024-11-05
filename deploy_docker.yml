@@ -1,7 +1,7 @@
 ---
 
 - name: Deploy Docker on target hosts
-  hosts: docker_hosts
+  hosts: master_nodes, worker_nodes
   gather_facts: true
 
   vars_files:
